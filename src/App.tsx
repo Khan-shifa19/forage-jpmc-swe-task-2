@@ -8,6 +8,7 @@ import './App.css';
  */
 interface IState {
   data: ServerRespond[],
+  showGraph: boolean,
 }
 
 /**
@@ -15,7 +16,8 @@ interface IState {
  * It renders title, button and Graph react element.
  */
 class App extends Component<{}, IState> {
-  constructor(props: {}) {
+  state: any;
+  constructor(...args: [props: {}]) {
     super(props);
 
     this.state = {
@@ -29,18 +31,31 @@ class App extends Component<{}, IState> {
    * Render Graph react component with state.data parse as property data
    */
   renderGraph() {
-    return (<Graph data={this.state.data}/>)
+    if (this.state.showGraph) {
+      return (<Graph data={this.state.data}/>)
+    }
   }
 
   /**
    * Get new data from server and update the state with the new data
    */
   getDataFromServer() {
-    DataStreamer.getData((serverResponds: ServerRespond[]) => {
-      // Update the state by creating a new array of data that consists of
-      // Previous data in the state and the new data from server
-      this.setState({ data: [...this.state.data, ...serverResponds] });
-    });
+    let x = 0;
+    const interval = setInterval(() =>{
+      DataStreamer.getData((serverresponds:ServerRespond[]) => {
+        this.setState({
+          data:serverresponds,
+          showGraph: true,
+        });
+      });
+      x++;
+      if (x>1000){
+        clearInterval(interval);
+      }
+    }, 100);
+  }
+  setState(arg0: { data: any[]; }) {
+    throw new Error('Method not implemented.');
   }
 
   /**
